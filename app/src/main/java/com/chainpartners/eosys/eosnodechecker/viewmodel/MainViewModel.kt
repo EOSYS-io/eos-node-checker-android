@@ -12,12 +12,14 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.math.max
 
 class MainViewModel @Inject constructor(
         private val chainRepo: ChainRepository
 ) : ViewModel(), LifecycleObserver {
 
     val nodeList = MutableLiveData<ArrayList<EosNode>>()
+    var maxBlockNumber = 0
 
     private val disposable = CompositeDisposable()
     private var timer: Disposable? = null
@@ -28,7 +30,7 @@ class MainViewModel @Inject constructor(
             add(EosNode("starteosiobp", "http://api-mainnet.starteos.io", 1))
             add(EosNode("eoscanadacom", "http://mainnet.eoscanada.com", 2))
             add(EosNode("eosnewyorkio", "http://api.eosnewyork.io", 3))
-            add(EosNode("eoshuobipool", "http://peer1.eoshuobipool.com:8181", 4))
+            add(EosNode("eoshuobipool", "http://peer2.eoshuobipool.com:8181", 4))
             add(EosNode("zbeosbp11111", "https://node1.zbeos.com", 5))
             add(EosNode("bitfinexeos1", "http://eos-bp.bitfinex.com:8888", 6))
             add(EosNode("libertyblock", "http://mainnet.libertyblock.io:8888", 7))
@@ -45,7 +47,7 @@ class MainViewModel @Inject constructor(
         timer = Observable.interval(0, 3, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { getNodeList(nodeList.value ?: return@subscribe) }
+                .subscribe { getNodeInfo(nodeList.value ?: return@subscribe) }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
@@ -55,25 +57,30 @@ class MainViewModel @Inject constructor(
         timer = null
     }
 
-    private fun getNodeList(list: ArrayList<EosNode>) {
+    private fun getNodeInfo(list: ArrayList<EosNode>) {
         list.forEach { baseNode ->
             disposable.add(
                     chainRepo.getNodeInfo(baseNode)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({ result ->
-                                nodeList.value?.let { list ->
-                                    list.find { it.name == result.name }?.let { origin ->
-                                        nodeList.value = list.apply {
-                                            remove(origin)
-                                            add(result)
-                                        }
-                                    }
-                                }
+                                maxBlockNumber = max(maxBlockNumber, result.info?.head_block_num ?: 0)
+                                replaceNode(result)
                             }, {
                                 it.printStackTrace()
+                                replaceNode(EosNode(baseNode.name, baseNode.url, baseNode.rank))
                             })
             )
+        }
+    }
+
+    private fun replaceNode(node: EosNode) {
+        val list = nodeList.value ?: return
+        val origin = list.find { it.name == node.name } ?: return
+        nodeList.value = list.apply {
+            val index = list.indexOf(origin)
+            remove(origin)
+            add(index, node)
         }
     }
 }

@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.apply {
             nodeList.observe(this@MainActivity, Observer<ArrayList<EosNode>> {
+                adapter.maxBlockNumber = viewModel.maxBlockNumber
                 adapter.setNodeList(it ?: return@Observer)
             })
         }
