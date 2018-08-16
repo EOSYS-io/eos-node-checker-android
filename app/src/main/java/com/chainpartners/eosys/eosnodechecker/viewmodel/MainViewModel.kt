@@ -5,6 +5,7 @@ import com.chainpartners.eosys.eosnodechecker.service.model.EosNode
 import com.chainpartners.eosys.eosnodechecker.service.repository.ChainRepository
 import com.chainpartners.eosys.eosnodechecker.util.EOSYS_NAME
 import com.chainpartners.eosys.eosnodechecker.util.EOSYS_URL
+import com.chainpartners.eosys.eosnodechecker.util.TIMEOUT_INTERVAL
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -44,7 +45,7 @@ class MainViewModel @Inject constructor(
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onStart() {
-        timer = Observable.interval(0, 3, TimeUnit.SECONDS)
+        timer = Observable.interval(0, TIMEOUT_INTERVAL, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { getNodeInfo(nodeList.value ?: return@subscribe) }
