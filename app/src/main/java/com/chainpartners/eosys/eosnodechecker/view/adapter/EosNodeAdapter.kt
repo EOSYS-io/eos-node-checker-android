@@ -1,23 +1,26 @@
 package com.chainpartners.eosys.eosnodechecker.view.adapter
 
-import android.annotation.SuppressLint
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.chainpartners.eosys.eosnodechecker.R
-import com.chainpartners.eosys.eosnodechecker.service.model.EosChainInfo
 import com.chainpartners.eosys.eosnodechecker.service.model.EosNode
 import com.chainpartners.eosys.eosnodechecker.util.BLOCK_NUM_INTERVAL
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.item_node.view.*
 
-class EosNodeAdapter(
-        private val clickListener: ((eosNode: EosNode) -> Unit)?
-) : RecyclerView.Adapter<EosNodeAdapter.EosNodeViewHolder>() {
+class EosNodeAdapter : RecyclerView.Adapter<EosNodeAdapter.EosNodeViewHolder>() {
+
+    private val viewClickSubject = PublishSubject.create<EosNode>()
+    val viewClickEvent: Observable<EosNode> = viewClickSubject
 
     private val list = ArrayList<EosNode>()
     var maxBlockNumber = 0
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = EosNodeViewHolder(parent, clickListener)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = EosNodeViewHolder(parent).apply {
+        itemView.setOnClickListener { viewClickSubject.onNext(data ?: return@setOnClickListener) }
+    }
 
     override fun onBindViewHolder(holder: EosNodeViewHolder, position: Int) {
         holder.bind(list[position], maxBlockNumber)
@@ -35,38 +38,24 @@ class EosNodeAdapter(
     }
 
 
-    class EosNodeViewHolder(
-            val parent: ViewGroup,
-            private val clickListener: ((eosNode: EosNode) -> Unit)?
-    ) : RecyclerView.ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_node, parent, false)) {
+    class EosNodeViewHolder(val parent: ViewGroup) : RecyclerView.ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_node, parent, false)) {
         var data: EosNode? = null
 
         val nodeContainer = itemView.nodeContainer!!
         val nodeTitleText = itemView.nodeTitleText!!
         val nodeNumberText = itemView.nodeNumberText!!
-        val nodeIdText = itemView.nodeIdText!!
-        val nodeTimeText = itemView.nodeTimeText!!
-        val nodeProducerText = itemView.nodeProducerText!!
 
-        init {
-            itemView.setOnClickListener { clickListener?.invoke(data ?: return@setOnClickListener) }
-        }
-
-        @SuppressLint("SetTextI18n")
         fun bind(eosNode: EosNode, maxBlockNumber: Int) {
             data = eosNode
 
             nodeTitleText.text = eosNode.name
 
-            val info = eosNode.info ?: EosChainInfo("none", 0, 0, "none", "none", "none")
-            nodeNumberText.text = "Number : ${info.head_block_num}"
-            nodeIdText.text = "ID : ${info.head_block_id}"
-            nodeTimeText.text = "Time : ${info.head_block_time}"
-            nodeProducerText.text = "Producer : ${info.head_block_producer}"
+            val number = eosNode.info?.head_block_num ?: 0
+            nodeNumberText.text = "$number"
 
             when {
-                info.head_block_num == 0 -> R.color.item_background_error
-                info.head_block_num < maxBlockNumber - BLOCK_NUM_INTERVAL -> R.color.item_background_warning
+                number == 0 -> R.color.item_background_error
+                number < maxBlockNumber - BLOCK_NUM_INTERVAL -> R.color.item_background_warning
                 else -> R.color.item_background_default
             }.let { nodeContainer.setBackgroundColor(parent.context.resources.getColor(it)) }
         }

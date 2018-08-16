@@ -11,6 +11,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.max
@@ -20,6 +21,7 @@ class MainViewModel @Inject constructor(
 ) : ViewModel(), LifecycleObserver {
 
     val nodeList = MutableLiveData<ArrayList<EosNode>>()
+    val listItemClickListener = PublishSubject.create<EosNode>()!!
     var maxBlockNumber = 0
 
     private val disposable = CompositeDisposable()
@@ -56,6 +58,10 @@ class MainViewModel @Inject constructor(
         disposable.clear()
         timer?.dispose()
         timer = null
+    }
+
+    fun listItemClickEvent(node: EosNode) {
+        listItemClickListener.onNext(node)
     }
 
     private fun getNodeInfo(list: ArrayList<EosNode>) {
