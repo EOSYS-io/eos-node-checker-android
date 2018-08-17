@@ -37,4 +37,11 @@ class MainActivity : AppCompatActivity() {
 
         lifecycle.addObserver(viewModel)
     }
+
+    override fun onBackPressed() {
+        supportFragmentManager.popBackStack()
+        if (supportFragmentManager.backStackEntryCount == 0) {
+            super.onBackPressed()
+        }
+    }
 }
