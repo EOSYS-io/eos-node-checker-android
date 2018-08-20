@@ -17,7 +17,7 @@
         app:layout_constraintEnd_toStartOf="@id/numberText"/>
     <TextView
         android:id="@+id/numberText"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/number_cell_width"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="8dp"
@@ -25,6 +25,18 @@
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/titleText"
+        app:layout_constraintBottom_toBottomOf="@id/titleText"
+        app:layout_constraintEnd_toStartOf="@id/timeText"/>
+    <TextView
+        android:id="@+id/timeText"
+        android:layout_width="@dimen/time_cell_width"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="Time"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/numberText"
         app:layout_constraintBottom_toBottomOf="@id/titleText"
         app:layout_constraintEnd_toEndOf="parent"/>
     <android.support.v7.widget.RecyclerView

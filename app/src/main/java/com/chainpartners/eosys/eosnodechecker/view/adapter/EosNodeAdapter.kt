@@ -9,6 +9,7 @@ import com.chainpartners.eosys.eosnodechecker.util.BLOCK_NUM_INTERVAL
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.item_node.view.*
+import java.text.SimpleDateFormat
 
 class EosNodeAdapter : RecyclerView.Adapter<EosNodeAdapter.EosNodeViewHolder>() {
 
@@ -44,6 +45,10 @@ class EosNodeAdapter : RecyclerView.Adapter<EosNodeAdapter.EosNodeViewHolder>() 
         val nodeContainer = itemView.nodeContainer!!
         val nodeTitleText = itemView.nodeTitleText!!
         val nodeNumberText = itemView.nodeNumberText!!
+        val nodeTimeText = itemView.nodeTimeText!!
+
+        private val defaultFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+        private val dateFormat = SimpleDateFormat("yyMMdd HH:mm:ss")
 
         fun bind(eosNode: EosNode, maxBlockNumber: Int) {
             data = eosNode
@@ -52,6 +57,12 @@ class EosNodeAdapter : RecyclerView.Adapter<EosNodeAdapter.EosNodeViewHolder>() 
 
             val number = eosNode.info?.head_block_num ?: 0
             nodeNumberText.text = "$number"
+
+            nodeTimeText.text = if (eosNode.info != null) {
+                dateFormat.format(defaultFormat.parse(eosNode.info.head_block_time))
+            } else {
+                "none"
+            }
 
             when {
                 number == 0 -> R.color.item_background_error

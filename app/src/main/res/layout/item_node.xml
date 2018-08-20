@@ -16,12 +16,22 @@
         app:layout_constraintEnd_toStartOf="@id/nodeNumberText"/>
     <TextView
         android:id="@+id/nodeNumberText"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/number_cell_width"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="8dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/nodeTitleText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/nodeTimeText"/>
+    <TextView
+        android:id="@+id/nodeTimeText"
+        android:layout_width="@dimen/time_cell_width"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="8dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/nodeNumberText"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 </android.support.constraint.ConstraintLayout>
